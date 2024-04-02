@@ -1,0 +1,38 @@
+# -*- coding: utf-8 -*-
+"""
+...
+"""
+
+import sys
+
+#enter first and last name; ID number (A#####, #1-9)
+#Validate ID - exit after 3 failed ids
+
+def main():
+    firstName, lastName, idNum = getUser()
+    if firstName == '0':
+        print()
+        sys.exit()
+
+
+def getUser():
+    '''gets user's name and ID number and validates ID number'''
+    firstName = input("Enter first name: ")
+    lastName = input("Enter last name: ")
+    idNum = input("Enter your ID: ")
+    count = 1
+    invalidID = (len(idNum) > 6 or len(idNum) < 6 or '0' in idNum)
+    while invalidID and count < 3:
+        idNum = input('Invalid ID. Try again: ')
+        count += 1
+    if invalidID and count == 3:
+        return '0','0', '0'
+    else:
+        return firstName, lastName, idNum
+        
+        
+
+
+
+if __name__ == "__main__":
+    main()
