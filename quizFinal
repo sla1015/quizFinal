@@ -4,7 +4,7 @@
 """
 
 import sys
-hahahahahahahahaha
+
 #enter first and last name; ID number (A#####, #1-9)
 #Validate ID - exit after 3 failed ids
 
