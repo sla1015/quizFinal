@@ -1,0 +1,105 @@
+# -*- coding+:+ *utf-8-sig -*-
+"""
+...
+"""
+
+import sys
+import csv
+import random
+import time
+import os
+
+#enter first and last name; ID number (A#####, #1-9)
+#Validate ID - exit after 3 failed ids
+
+def main():
+    firstName, lastName, idNum = getUser()
+    if firstName == '0':
+        sys.exit()
+    startQuiz()
+    
+    choice=input("Enter Q to exit or S to clear the screen and start a second quiz")
+    while choice!='Q' and choice!='S':
+        choice=input("incorrect response; Enter Q to exit or S to clear the screen and start a second quiz")
+    if choice=='Q':
+        sys.exit()
+    else:
+        os.system('cls')
+        main()
+    
+    
+    
+def startQuiz():
+   
+    quizLength=int(input("Would you like 10 or 20 Questions? "))
+    
+    while quizLength != 10 and quizLength != 20:
+        quizLength=int(input("Invalid Response. 10 or 20 Questions? "))
+    
+    quizLoop(quizLength=quizLength)
+
+def quizLoop(quizLength):
+    wrong=0
+    right=0
+    with open('testBank.csv', 'r', encoding='utf-8-sig') as file:
+        csv_reader = csv.DictReader(file)
+        testBank = [row for row in csv_reader]
+    
+    start=time.time()
+    chosen=[]
+    for i in range(quizLength):
+        if time.time()-start>600:
+            break
+        else:
+            x=random.randrange(len(testBank))
+            while x in chosen:
+                x=random.randrange(len(testBank))
+                print("OOPS WE ALREADY HAVE QUESTION",x,'\n')
+            chosen.append(x)
+            
+            print("Question number ",x,':\n',testBank[x]["Question text"],sep='')
+            print("A: ",testBank[x]["Option A"],sep='')
+            print("B: ",testBank[x]["Option B"],sep='')
+            print("C: ",testBank[x]["Option C"],sep='')
+            
+            guess=input("Answer: ")
+            
+            while guess.upper() != 'A'and guess.upper() !='B'and guess.upper() !='C':
+                guess=input("Invalid Response, Guess Again: ")
+            if guess.upper() != testBank[x]["Correct Answer"]:
+                wrong+=1
+            else:
+                right+=1
+    
+    
+    
+    end=time.time()
+    elapsed=round(end-start,3)
+    print("TOTAL TIME =",elapsed)
+    evaluate(right=right,wrong=wrong,quizLength=quizLength)
+    
+def evaluate(right,wrong,quizLength):
+    score=(right/quizLength)*100
+    print("You got",right,"correct and",wrong,"incorrect")
+    print("You're score is",score,"%")
+    
+
+def getUser():
+    '''gets user's name and ID number and validates ID number'''
+    firstName = input("Enter first name: ")
+    lastName = input("Enter last name: ")
+    idNum = input("Enter your ID: ")
+    count = 1
+    invalidID = idNum[0] !='A' or len(idNum) > 6 or len(idNum) < 6 or '0' in idNum
+    while invalidID and count < 3:
+        idNum = input('Invalid ID. Try again: ')
+        invalidID = idNum[0] !='A' or len(idNum) > 6 or len(idNum) < 6 or '0' in idNum
+        count += 1
+    if invalidID and count == 3:
+        return '0','0', '0'
+    else:
+        return firstName, lastName, idNum
+        
+
+if __name__ == "__main__":
+    main()
