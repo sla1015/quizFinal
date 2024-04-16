@@ -1,7 +1,3 @@
-# -*- coding+:+ *utf-8-sig -*-
-"""
-...
-"""
 
 import sys
 import csv
@@ -12,11 +8,19 @@ import os
 #enter first and last name; ID number (A#####, #1-9)
 #Validate ID - exit after 3 failed ids
 
+
+#should we add some exceptions to prevent breaking
+
+
 def main():
     firstName, lastName, idNum = getUser()
     if firstName == '0':
         sys.exit()
-    startQuiz()
+    questions, elapsed, score = startQuiz()
+    
+    writeFile(firstName, lastName, idNum, questions, elapsed, score)
+
+    
     
     choice=input("Enter Q to exit or S to clear the screen and start a second quiz")
     while choice!='Q' and choice!='S':
@@ -36,7 +40,9 @@ def startQuiz():
     while quizLength != 10 and quizLength != 20:
         quizLength=int(input("Invalid Response. 10 or 20 Questions? "))
     
-    quizLoop(quizLength=quizLength)
+    questions, elapsed, score = quizLoop(quizLength=quizLength)
+    
+    return questions, elapsed, score
 
 def quizLoop(quizLength):
     wrong=0
@@ -44,7 +50,9 @@ def quizLoop(quizLength):
     with open('testBank.csv', 'r', encoding='utf-8-sig') as file:
         csv_reader = csv.DictReader(file)
         testBank = [row for row in csv_reader]
+    questions=[]
     
+    tempDict = {}
     start=time.time()
     chosen=[]
     for i in range(quizLength):
@@ -70,18 +78,34 @@ def quizLoop(quizLength):
                 wrong+=1
             else:
                 right+=1
-    
+            
+            #temp.append("Question number "+str(x)+": "+testBank[x]["Question text"]+". ")
+            #temp.append("They said: "+guess+". ")
+            #temp.append('Correct Answer: '+testBank[x]["Correct Answer"]+".\n\n")
+            tempDict = {}
+            
+            tempDict['question'] = (str(x) + ' ' + testBank[x]['Question text'])
+            tempDict['user answer'] = guess
+            tempDict['correct answer'] = testBank[x]['Correct Answer']
+            questions.append(tempDict)
     
     
     end=time.time()
     elapsed=round(end-start,3)
     print("TOTAL TIME =",elapsed)
-    evaluate(right=right,wrong=wrong,quizLength=quizLength)
+    score = evaluate(right=right,wrong=wrong,quizLength=quizLength)
+    
+    #I'm adding things for my file
+    return questions, elapsed, score
     
 def evaluate(right,wrong,quizLength):
     score=(right/quizLength)*100
     print("You got",right,"correct and",wrong,"incorrect")
-    print("You're score is",score,"%")
+    print("Your score is",score,"%")
+    
+    
+    #added by Sage for my purposes
+    return score
     
 
 def getUser():
@@ -99,6 +123,26 @@ def getUser():
         return '0','0', '0'
     else:
         return firstName, lastName, idNum
+    
+def writeFile(first, last, num, questions, elapsed, score):
+    '''
+    Parameters:
+        first - str. User's first name
+        last - str. User's last name
+        num - str. User's ID number
+        questions - list of dictionaries. selected questions with their correct answer and user's answer
+        elapsed - float. total time taken by the user
+        score - int. user's final score
+    '''
+    fileName = num + "_" + first + "_" + last + '.txt'
+    with open(fileName, 'a', newline = '') as file:
+        file.write(num + ' ' + first +  ' ' +  last + "\n")
+        file.write("Score:" + str(score) + "\n")
+        file.write("Time elapsed:" + str(elapsed) + "\n")
+        for question in questions:
+            file.write(question['question'] + "\n")
+            file.write("User Answer: " + question['user answer'] + "\n")
+            file.write("Correct Answer: " + question['correct answer'] + "\n")
         
 
 if __name__ == "__main__":
