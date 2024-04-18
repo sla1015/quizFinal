@@ -1,39 +1,58 @@
-
 import sys
 import csv
 import random
 import time
 import os
 
-#enter first and last name; ID number (A#####, #1-9)
-#Validate ID - exit after 3 failed ids
-
-
-#should we add some exceptions to prevent breaking
-
 
 def main():
+    
+    # Gets the Users Name and ID, input validates, and exits the program if that fails thrice. Lines 13-16 done by Sage
     firstName, lastName, idNum = getUser()
     if firstName == '0':
         sys.exit()
-    questions, elapsed, score = startQuiz()
     
-    writeFile(firstName, lastName, idNum, questions, elapsed, score)
+    
+    questions, elapsed, score = startQuiz() # Keeps track of the questions, elapsed time, and the score. Sage
+    
+    writeFile(firstName, lastName, idNum, questions, elapsed, score) # Writes the name and ID, along with the questions time and score to a file. Sage
 
     
-    
+    # Gives the user the option to exit the quiz or start over. Lines 24-32 by Seth
     choice=input("Enter Q to exit or S to clear the screen and start a second quiz")
     while choice!='Q' and choice!='S':
         choice=input("incorrect response; Enter Q to exit or S to clear the screen and start a second quiz")
-    if choice=='Q':
+    if choice.upper()=='Q':
         sys.exit()
-    else:
+    elif choice.upper() == 'S':
         os.system('cls')
         main()
-    
-    
-    
+
+
+
 def startQuiz():
+    """
+    Parameters
+    ----------
+    NONE
+    
+    Returns
+    -------
+    questions : LIST
+        The list of questions printed to the user.
+    elapsed : INT
+        Amount of time elapsed during the testing process.
+    score : INT
+        The user the score recieved.
+    
+    Function
+    --------
+    Prompts the user on how many questions they would like and then initiates the quiz loop.
+    
+    Authored
+    --------
+    Fully written by Seth
+    """
    
     quizLength=int(input("Would you like 10 or 20 Questions? "))
     
@@ -45,6 +64,30 @@ def startQuiz():
     return questions, elapsed, score
 
 def quizLoop(quizLength):
+    """
+    Parameters
+    ----------
+    quizLength : INT
+        Tells the quizLoop how many questions to administer
+    
+    Returns
+    -------
+    questions : LIST
+        The list of questions printed to the user.
+    elapsed : INT
+        Amount of time elapsed during the testing process.
+    score : INT
+        The user the score recieved.
+    
+    Function
+    --------
+    Reads the text bank to a list of dictionaries, keeps track of time elapsed, and tracks the questions administered, guesses made, and correct answers.
+    
+    Authored
+    --------
+    Seth : 95-99 , 103-127 , 137-139
+    Sage : 100-102 , 129-134 , 141-142
+    """
     wrong=0
     right=0
     with open('testBank.csv', 'r', encoding='utf-8-sig') as file:
@@ -79,9 +122,6 @@ def quizLoop(quizLength):
             else:
                 right+=1
             
-            #temp.append("Question number "+str(x)+": "+testBank[x]["Question text"]+". ")
-            #temp.append("They said: "+guess+". ")
-            #temp.append('Correct Answer: '+testBank[x]["Correct Answer"]+".\n\n")
             tempDict = {}
             
             tempDict['question'] = (str(x) + ' ' + testBank[x]['Question text'])
@@ -93,23 +133,68 @@ def quizLoop(quizLength):
     end=time.time()
     elapsed=round(end-start,3)
     print("TOTAL TIME =",elapsed)
-    score = evaluate(right=right,wrong=wrong,quizLength=quizLength)
     
-    #I'm adding things for my file
+    score = evaluate(right=right,wrong=wrong,quizLength=quizLength)
     return questions, elapsed, score
     
 def evaluate(right,wrong,quizLength):
+    """
+    
+    Parameters
+    ----------
+    right : INT
+        Number of questions gotten right.
+    wrong : INT
+        Number of questions gotten wrong.
+    quizLength : INT
+        NUmber of questions administered.
+
+    Returns
+    -------
+    score : INT
+        Score recieved.
+        
+    Function
+    --------
+    Recieves the amount of questions, right, and wrong and then calculates a score from that
+    
+    Authored
+    --------
+    Seth 169-171
+    Sage 175
+    """
     score=(right/quizLength)*100
     print("You got",right,"correct and",wrong,"incorrect")
     print("Your score is",score,"%")
     
-    
-    #added by Sage for my purposes
     return score
     
 
 def getUser():
-    '''gets user's name and ID number and validates ID number'''
+    """
+    Parameters
+    ----------
+    NONE
+    
+    Returns
+    -------
+    firstName : STRING
+        The users first name
+    lastName : STRING
+        The users last name
+    idNum : STRING
+        The users Id
+    
+    Function
+    --------
+    Accepts the Users first and last name and their ID. gives them three tries to get it right and if they get it wrong
+    three times exits the program. Ensures that the ID involves a capital A and 6 digits between 1 and 9
+    
+    Authored
+    --------
+    Fully authored by Sage
+    """
+
     firstName = input("Enter first name: ")
     lastName = input("Enter last name: ")
     idNum = input("Enter your ID: ")
@@ -125,15 +210,35 @@ def getUser():
         return firstName, lastName, idNum
     
 def writeFile(first, last, num, questions, elapsed, score):
-    '''
-    Parameters:
-        first - str. User's first name
-        last - str. User's last name
-        num - str. User's ID number
-        questions - list of dictionaries. selected questions with their correct answer and user's answer
-        elapsed - float. total time taken by the user
-        score - int. user's final score
-    '''
+    """
+    Parameters
+    ----------
+    first : STRING
+        The users First Name.
+    last : STRING
+        DESCRIPTION.
+    num : STRING
+        The users Last Name.
+    questions : LIST
+        The list of questions printed to the user.
+    elapsed : INT
+        Amount of time elapsed during the testing process.
+    score : INT
+        The user the score recieved.
+    
+    Returns
+    -------
+    NONE
+    
+    Function
+    --------
+    Accepts all the arguments and writes them to a file with the proper formatting
+    
+    Authored
+    --------
+    Fully authored by Sage
+    """
+    
     fileName = num + "_" + first + "_" + last + '.txt'
     with open(fileName, 'a', newline = '') as file:
         file.write(num + ' ' + first +  ' ' +  last + "\n")
